@@ -1,0 +1,50 @@
+[project]
+name = "management-api"
+version = "0.1.0"
+description = "Hands out (hostname, MAC, IPv4) DHCP reservations from a dedicated /24 and pushes every change to the config generators."
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1",
+    "pyyaml>=6.0",
+    "requests>=2.32",
+    "waitress>=3.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18",
+    "pytest>=8.4",
+    "ruff>=0.16",
+    "types-pyyaml>=6.0",
+    "types-requests>=2.32",
+    "types-waitress>=3.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ERA",    # eradicate (commented-out code)
+    "RUF100", # unused noqa directives
+]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests", "main.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+log_level = "INFO"

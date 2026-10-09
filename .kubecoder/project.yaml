@@ -9,3 +9,13 @@ projects:
       - cexec modern-app uv run --locked ruff check .
       - cexec modern-app uv run --locked ruff format --check .
       - cexec modern-app uv run --locked mypy
+  management-api:
+    description: >-
+      The management API: hands out DHCP reservations from a dedicated /24 and
+      pushes every change to the config generators.
+    setup: cexec modern-app uv sync --locked --all-packages
+    test: cexec modern-app uv run --locked pytest
+    lint:
+      - cexec modern-app uv run --locked ruff check .
+      - cexec modern-app uv run --locked ruff format --check .
+      - cexec modern-app uv run --locked mypy
