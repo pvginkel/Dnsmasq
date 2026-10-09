@@ -1,0 +1,49 @@
+schemaVersion: "0.1"
+producer: dnsmasq
+
+# dnsmasq-config-generator — control plane that renders dnsmasq's static and
+# dynamic DNS/DHCP config and SIGHUPs dnsmasq. It is NOT the DNS/DHCP server
+# (dnsmasq is); it does not realize cap:dns/cap:dhcp.
+
+applicationComponents:
+  - id: app:dnsmasq-config-generator,7746e07b-6146-45ee-8c42-e24525c70edc
+    label: dnsmasq Config Generator
+    summary: >-
+      Renders dnsmasq static config (one-shot init) and dynamic config from
+      Kubernetes Services and reservation records, SIGHUPing dnsmasq on change.
+    introduced: 2025-08-14
+    lifecycle: active
+    stereotype: SoftwareProduct
+    logo: dnsmasq
+    sourceRepository: git:pvginkel/Dnsmasq
+
+applicationServices:
+  - id: svc:dnsmasq-config-generator,257d85b1-2633-4c8b-b361-dee0d06d41b9
+    label: dnsmasq config refresh API
+    summary: >-
+      HTTP endpoint that re-renders the dynamic DNS/DHCP config and reloads
+      dnsmasq; called by the dnsmasq management API after reservation changes.
+    introduced: 2025-08-14
+    lifecycle: active
+
+applicationInterfaces:
+  - id: if:dnsmasq-config-generator-refresh,ceb85a09-98da-4725-a6c7-1655eacfa3c9
+    label: POST /refresh
+    summary: Re-renders config from Services + reservations and SIGHUPs dnsmasq.
+    introduced: 2025-08-14
+    lifecycle: active
+
+relations:
+  - id: rel:dnsmasq-config-generator-provides-refresh
+    source: app:dnsmasq-config-generator,7746e07b-6146-45ee-8c42-e24525c70edc
+    target: svc:dnsmasq-config-generator,257d85b1-2633-4c8b-b361-dee0d06d41b9
+    type: Realization
+  - id: rel:dnsmasq-config-generator-refresh-endpoint
+    source: if:dnsmasq-config-generator-refresh,ceb85a09-98da-4725-a6c7-1655eacfa3c9
+    target: svc:dnsmasq-config-generator,257d85b1-2633-4c8b-b361-dee0d06d41b9
+    type: Assignment
+  # Watches the Kubernetes API (in-cluster service account, no host env var).
+  - id: rel:dnsmasq-config-generator-consumes-k8s
+    source: app:dnsmasq-config-generator,7746e07b-6146-45ee-8c42-e24525c70edc
+    target: cap:container-orchestration
+    type: Association

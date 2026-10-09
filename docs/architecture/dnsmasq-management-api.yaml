@@ -1,0 +1,53 @@
+schemaVersion: "0.1"
+producer: dnsmasq
+
+# dnsmasq-management-api — REST API for DHCP reservations. On change it fans
+# out a refresh to the dnsmasq config generator's /refresh endpoint(s)
+# (DNS0_ENDPOINT/DNS1_ENDPOINT/DHCP_ENDPOINT/DHCP_APP_ENDPOINT) — a direct
+# in-house dependency on svc:dnsmasq-config-generator, not on DNS/DHCP
+# resolution itself.
+
+applicationComponents:
+  - id: app:dnsmasq-management-api,2c347ac5-43b0-447e-ad10-8ec846c1ba40
+    label: dnsmasq Management API
+    summary: >-
+      Bearer-authenticated REST API for managing DHCP host reservations,
+      auto-allocating IPs and triggering a dnsmasq config refresh on change.
+    introduced: 2026-04-29
+    lifecycle: active
+    stereotype: SoftwareProduct
+    logo: dnsmasq
+    sourceRepository: git:pvginkel/Dnsmasq
+
+applicationServices:
+  - id: svc:dnsmasq-management-api,d6a5990f-06c9-44c6-aff8-7755b3ec7dcd
+    label: DHCP reservation management API
+    summary: REST API to list, read, create/update and delete DHCP reservations.
+    introduced: 2026-04-29
+    lifecycle: active
+
+applicationInterfaces:
+  - id: if:dnsmasq-management-api-reservations,3837debd-87e3-49f8-8c24-bb2bc72ff36d
+    label: /reservations
+    summary: >-
+      Bearer-authenticated CRUD over DHCP reservations
+      (GET/PUT/DELETE /reservations[/<hostname>]).
+    introduced: 2026-04-29
+    lifecycle: active
+
+relations:
+  - id: rel:dnsmasq-management-api-provides-api
+    source: app:dnsmasq-management-api,2c347ac5-43b0-447e-ad10-8ec846c1ba40
+    target: svc:dnsmasq-management-api,d6a5990f-06c9-44c6-aff8-7755b3ec7dcd
+    type: Realization
+  - id: rel:dnsmasq-management-api-reservations-endpoint
+    source: if:dnsmasq-management-api-reservations,3837debd-87e3-49f8-8c24-bb2bc72ff36d
+    target: svc:dnsmasq-management-api,d6a5990f-06c9-44c6-aff8-7755b3ec7dcd
+    type: Assignment
+  # Direct dependency on the config generator's refresh service (known
+  # in-house provider — target names it; boundBy records the wire).
+  - id: rel:dnsmasq-management-api-consumes-config-generator
+    source: app:dnsmasq-management-api,2c347ac5-43b0-447e-ad10-8ec846c1ba40
+    target: svc:dnsmasq-config-generator,257d85b1-2633-4c8b-b361-dee0d06d41b9
+    type: Association
+    boundBy: "env:DNS0_ENDPOINT"

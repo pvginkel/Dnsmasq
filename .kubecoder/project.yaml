@@ -43,3 +43,11 @@ projects:
       the build pushed. Its test runs that Job in `development` against images
       built from the working tree.
     test: ./run-dev.sh
+  architecture:
+    cwd: docs/architecture
+    description: >-
+      The architecture producer `dnsmasq`: the two apps' hand-authored models,
+      validated as one set so the management API's reference to the config
+      generator's service resolves, as Jenkinsfile.architecture (AaC/Dnsmasq)
+      validates them.
+    test: cexec aac-tools arch-validate --quiet *.yaml

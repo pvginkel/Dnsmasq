@@ -1,0 +1,50 @@
+// Validates the hand-authored architecture models of the config generator and the management API,
+// docs/architecture/*.yaml, against the architecture service, and archives them as the producer's
+// artifact, which AaC/Architecture collects.
+//
+// The two models are one producer, dnsmasq, validated as one set: the management API's model
+// consumes the config generator's service by id.
+//
+// Controller config:
+//   - Job: AaC/Dnsmasq
+//   - SCM: pvginkel/Dnsmasq, branch main
+//   - Script Path: Jenkinsfile.architecture
+
+library identifier: 'JenkinsPipelineUtils', changelog: false
+
+pipeline {
+    agent {
+        kubernetes {
+            inheritFrom 'jenkins-agent'
+            yaml podYaml(templates: ['aac-tools'])
+        }
+    }
+
+    options {
+        disableConcurrentBuilds(abortPrevious: true)
+        skipDefaultCheckout()
+        timeout(time: 60, unit: 'MINUTES')
+        timestamps()
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validate architecture') {
+            steps {
+                script {
+                    architectureProducer.validate(files: ['docs/architecture/*.yaml'])
+                    architectureProducer.archive(files: ['docs/architecture/*.yaml'])
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+instructions: >
+  Hand-authored producer (id dnsmasq): docs/architecture/<product>.yaml is the
+  full logical architecture of one in-house app, and the source of truth; edit
+  it directly. dnsmasq-config-generator.yaml models config-generator/,
+  dnsmasq-management-api.yaml models management-api/. The two are validated as
+  one set (cexec aac-tools arch-validate docs/architecture/*.yaml), since the
+  management API's model consumes the config generator's svc: by id.
+
+  What this producer owns: each app's app:<name> SoftwareProduct identity
+  (sourceRepository: git:pvginkel/Dnsmasq), the ApplicationService and
+  ApplicationInterface it exposes, and the capabilities and services it
+  consumes. DnsmasqDeploy (producer dnsmasq-deploy) owns the running instances
+  that Specialize these products and the as-deployed wiring, so environment
+  and cluster stay unset here. dnsmasq/ is a repackaged upstream image and is
+  not modelled; its product is DnsmasqDeploy's ss:dnsmasq. tests/ and
+  validation/ are test tooling and are not modelled either.
+
+  Conventions. One ApplicationService per app, realized by the app (app
+  -Realization-> svc), and one ApplicationInterface per distinct consumer of
+  it (if -Assignment-> svc). Consumption edges are Associations from the
+  consumer: a known in-house provider (management API -> config generator)
+  targets that provider's svc:<id> directly, boundBy optional; a dependency
+  located by an in-cluster service account (the Kubernetes API) targets its
+  cap:<x> with no boundBy. When an app changes what it exposes or consumes,
+  its model changes with it.
