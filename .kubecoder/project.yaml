@@ -1,0 +1,10 @@
+# Seed manifest: the repo holds only its README so far. The change that builds
+# the uv workspace replaces this with the real components.
+projects:
+  workspace:
+    description: >-
+      Placeholder until the uv workspace lands; its test proves the toolchain
+      the real components will run in.
+    # Names a concern, not a folder.
+    cwd: .
+    test: cexec modern-app uv --version
