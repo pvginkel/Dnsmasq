@@ -68,8 +68,8 @@ The package is `management_api`, a member of the repository's uv workspace. Its 
 the repository root:
 
 ```bash
-kc project test
-kc project lint
+kc project test --project management-api
+kc project lint --project management-api
 ```
 
 The tests run the app in-process through Flask's test client, with the config generators'

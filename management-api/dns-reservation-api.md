@@ -56,6 +56,7 @@ Body of `200`/`201`:
 Read a single reservation.
 
 - `200 OK` with reservation body.
+- `400 Bad Request` — invalid hostname.
 - `404 Not Found` — no reservation under this hostname.
 - `401 Unauthorized`.
 
@@ -64,6 +65,7 @@ Read a single reservation.
 Remove a reservation. The IPv4 is released back to the allocation pool and may be reused on subsequent `PUT`s.
 
 - `204 No Content` — removed.
+- `400 Bad Request` — invalid hostname.
 - `404 Not Found` — no reservation under this hostname.
 - `401 Unauthorized`.
 
