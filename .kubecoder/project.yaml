@@ -35,3 +35,11 @@ projects:
       - cexec modern-app uv run --locked ruff check .
       - cexec modern-app uv run --locked ruff format --check .
       - cexec modern-app uv run --locked mypy
+  validation:
+    cwd: validation
+    description: >-
+      The validation image, which the Jenkins build's Test stage runs as a Job:
+      the two packages' unit tests and the integration tier, against the images
+      the build pushed. Its test runs that Job in `development` against images
+      built from the working tree.
+    test: ./run-dev.sh
