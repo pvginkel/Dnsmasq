@@ -1,0 +1,5 @@
+# Automatically generated file.
+
+{% for record in records -%}
+cname={{ record.alias }},{{ record.target }}
+{% endfor -%}

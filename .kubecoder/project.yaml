@@ -1,10 +1,11 @@
-# Seed manifest: the repo holds only its README so far. The change that builds
-# the uv workspace replaces this with the real components.
 projects:
-  workspace:
+  config-generator:
     description: >-
-      Placeholder until the uv workspace lands; its test proves the toolchain
-      the real components will run in.
-    # Names a concern, not a folder.
-    cwd: .
-    test: cexec modern-app uv --version
+      The config generator: renders dnsmasq's static config once (`generate`)
+      and keeps its dynamic config current (`serve`), in one image.
+    setup: cexec modern-app uv sync --locked --all-packages
+    test: cexec modern-app uv run --locked pytest
+    lint:
+      - cexec modern-app uv run --locked ruff check .
+      - cexec modern-app uv run --locked ruff format --check .
+      - cexec modern-app uv run --locked mypy

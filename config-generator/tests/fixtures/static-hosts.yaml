@@ -1,0 +1,28 @@
+# A small, deliberate set covering every combination the render templates handle:
+# - bare host record (no MAC)
+# - host with MAC (yields a dhcp-hostsfile line as well)
+# - conflicting names (same hostname, different addresses)
+# - a CNAME to a host with two addresses
+tag: intranet
+domain: home
+hosts:
+  - name: alpha
+    address: 10.99.0.1
+
+  - name: beta
+    address: 10.99.0.2
+    mac: 02:00:00:00:00:02
+
+  - name: gamma
+    address: 10.99.0.3
+
+  - name: gamma
+    address: 10.99.0.4
+
+  - name: delta
+    address: 10.99.0.5
+    mac: 02:00:00:00:00:05
+
+  - name: omega
+    type: cname
+    target: gamma
