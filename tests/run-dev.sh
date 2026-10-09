@@ -16,7 +16,7 @@ trap 'rm -f "$log"' EXIT
 
 build() {
     if ! kaniko --context . --dockerfile "$2/Dockerfile" --destination "registry:5000/$1:$tag" >"$log" 2>&1; then
-        cat "$log"
+        cat "$log" >&2
         exit 1
     fi
     echo "registry:5000/$1:$tag"
