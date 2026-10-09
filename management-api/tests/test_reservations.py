@@ -38,14 +38,14 @@ def test_put_normalises_mac_to_uppercase(api: ManagementApi) -> None:
 
 
 def test_put_same_hostname_same_mac_is_noop(api: ManagementApi) -> None:
-    r1 = api.put("host-a", "02:00:00:00:00:01")
+    r1 = api.put("host-a", "02:AB:CD:EF:00:01")
     assert r1.status_code == 201
     ipv4 = r1.get_json()["ipv4"]
     _assert_fanned_out(api)
     api.reset_fakes()
 
     # The MAC differs only in case, which normalisation erases.
-    r2 = api.put("host-a", "02:00:00:00:00:01".lower())
+    r2 = api.put("host-a", "02:ab:cd:ef:00:01")
     assert r2.status_code == 200
     assert r2.get_json()["ipv4"] == ipv4
     _assert_fanned_out(api, times=0)
@@ -67,25 +67,27 @@ def test_put_same_hostname_new_mac_keeps_ipv4(api: ManagementApi) -> None:
 
 
 def test_put_new_hostname_with_conflicting_mac_409(api: ManagementApi) -> None:
-    api.put("host-a", "02:00:00:00:00:01")
+    api.put("host-a", "02:AB:CD:EF:00:01")
     api.reset_fakes()
 
-    r = api.put("host-b", "02:00:00:00:00:01")
+    # The same MAC in the other case: the check compares the normalised MAC.
+    r = api.put("host-b", "02:ab:cd:ef:00:01")
     assert r.status_code == 409
     assert r.get_json() == {
         "error": "mac_conflict",
-        "message": "MAC 02:00:00:00:00:01 is already reserved for host-a.",
+        "message": "MAC 02:AB:CD:EF:00:01 is already reserved for host-a.",
     }
     assert api.get("host-b").status_code == 404
     _assert_fanned_out(api, times=0)
 
 
 def test_put_existing_hostname_with_conflicting_mac_409(api: ManagementApi) -> None:
-    api.put("host-a", "02:00:00:00:00:01")
+    api.put("host-a", "02:AB:CD:EF:00:01")
     api.put("host-b", "02:00:00:00:00:02")
     api.reset_fakes()
 
-    r = api.put("host-b", "02:00:00:00:00:01")
+    # The same MAC in the other case: the check compares the normalised MAC.
+    r = api.put("host-b", "02:ab:cd:ef:00:01")
     assert r.status_code == 409
     assert r.get_json()["error"] == "mac_conflict"
     assert api.get("host-b").get_json()["mac"] == "02:00:00:00:00:02"
