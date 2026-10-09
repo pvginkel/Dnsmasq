@@ -1,0 +1,55 @@
+[project]
+name = "integration-tests"
+version = "0.1.0"
+description = "The integration tier: the behaviour only the built images show, each stack a one-pod Kubernetes Job."
+requires-python = ">=3.13"
+dependencies = [
+    "dnspython>=2.7",
+    "kubernetes~=35.0",
+    "pytest>=8.4",
+    "pyyaml>=6.0",
+    "requests>=2.32",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18",
+    "ruff>=0.16",
+    "types-pyyaml>=6.0",
+    "types-requests>=2.32",
+]
+
+# A test suite, not a package: uv installs its dependencies and builds nothing.
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ERA",    # eradicate (commented-out code)
+    "RUF100", # unused noqa directives
+]
+
+[tool.mypy]
+strict = true
+files = ["."]
+
+# The kubernetes client ships no type information.
+[[tool.mypy.overrides]]
+module = ["kubernetes", "kubernetes.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+# `tier.cluster` talks to the API server without certificate verification.
+filterwarnings = ["ignore::urllib3.exceptions.InsecureRequestWarning"]

@@ -19,3 +19,19 @@ projects:
       - cexec modern-app uv run --locked ruff check .
       - cexec modern-app uv run --locked ruff format --check .
       - cexec modern-app uv run --locked mypy
+  dnsmasq:
+    description: >-
+      The dnsmasq image: alpine's dnsmasq with the generated-config paths baked
+      in, and the script that reports every lease change to DHCPApp. Image
+      only; the integration tier tests it.
+  integration-tests:
+    cwd: tests
+    description: >-
+      The integration tier: builds the three images from the working tree and
+      runs what only they show, each stack a one-pod Job in `development`.
+    setup: cexec modern-app uv sync --locked --all-packages
+    test: ./run-dev.sh
+    lint:
+      - cexec modern-app uv run --locked ruff check .
+      - cexec modern-app uv run --locked ruff format --check .
+      - cexec modern-app uv run --locked mypy

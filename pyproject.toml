@@ -1,5 +1,5 @@
 [tool.uv.workspace]
-members = ["config-generator", "management-api"]
+members = ["config-generator", "management-api", "tests"]
 
 # uv's cache and the workspace sit on different filesystems in the dev
 # environment, where uv cannot hardlink.
