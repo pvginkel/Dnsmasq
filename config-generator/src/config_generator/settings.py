@@ -11,7 +11,10 @@ DEFAULT_DNSMASQ_PID_FILE = "/var/run/dnsmasq.pid"
 class Settings:
     """Every variable is optional here; each command validates the ones it needs.
 
-    An empty variable counts as unset.
+    An empty variable counts as unset, except two. `PORT` must parse when
+    present, so an empty one raises `ValueError`. An empty `DNSMASQ_PID_FILE`
+    means there is no dnsmasq to signal (the reader role); an unset one means
+    the default pid file.
     """
 
     port: int = 9000

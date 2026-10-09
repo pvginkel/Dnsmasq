@@ -38,9 +38,10 @@ All endpoints except `/healthz` require `Authorization: Bearer <AUTH_TOKEN>`.
 | `DHCP_APP_ENDPOINT` | no | — | URL of DHCPApp's `/refresh`. It renders the same reservations to report which leases are reserved. |
 | `REFRESH_TIMEOUT_SECONDS` | no | `30` | Per-endpoint HTTP timeout for the fan-out. |
 
-An empty variable counts as unset. A missing required variable, a `RESERVATION_CIDR` that is not
-an IPv4 `/24` network, or a `state.yaml` that is not a mapping stops the service at startup with
-exit code 1.
+An empty variable counts as unset, except `PORT` and `REFRESH_TIMEOUT_SECONDS`, which must parse
+when present. An empty or unparsable one, a missing required variable, a `RESERVATION_CIDR` that
+is not an IPv4 `/24` network, or a `state.yaml` that is not a mapping stops the service at startup
+with exit code 1.
 
 The refresh calls are sequential, so a `PUT` or `DELETE` whose endpoints all stall takes up to
 `REFRESH_TIMEOUT_SECONDS` per configured endpoint.

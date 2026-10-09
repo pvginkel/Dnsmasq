@@ -2,9 +2,12 @@ instructions: >
   Hand-authored producer (id dnsmasq): docs/architecture/<product>.yaml is the
   full logical architecture of one in-house app, and the source of truth; edit
   it directly. dnsmasq-config-generator.yaml models config-generator/,
-  dnsmasq-management-api.yaml models management-api/. The two are validated as
-  one set (cexec aac-tools arch-validate docs/architecture/*.yaml), since the
-  management API's model consumes the config generator's svc: by id.
+  dnsmasq-management-api.yaml models management-api/. Both are validated in
+  one call (cexec aac-tools arch-validate docs/architecture/*.yaml), each on its
+  own: arch-validate resolves no reference. The management API's model
+  consumes the config generator's svc: by id, so a change to that id is carried
+  into the management API's model by hand; only the federation's validation
+  report shows a dangling one.
 
   What this producer owns: each app's app:<name> SoftwareProduct identity
   (sourceRepository: git:pvginkel/Dnsmasq), the ApplicationService and

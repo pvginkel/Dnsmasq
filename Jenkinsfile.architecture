@@ -2,8 +2,9 @@
 // docs/architecture/*.yaml, against the architecture service, and archives them as the producer's
 // artifact, which AaC/Architecture collects.
 //
-// The two models are one producer, dnsmasq, validated as one set: the management API's model
-// consumes the config generator's service by id.
+// The two models are one producer, dnsmasq, validated in one call. The management API's model
+// consumes the config generator's service by id, and arch-validate checks each model on its own and
+// resolves no reference: a dangling one shows only in the federation's validation report.
 //
 // Controller config:
 //   - Job: AaC/Dnsmasq

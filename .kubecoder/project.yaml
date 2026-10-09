@@ -47,7 +47,6 @@ projects:
     cwd: docs/architecture
     description: >-
       The architecture producer `dnsmasq`: the two apps' hand-authored models,
-      validated as one set so the management API's reference to the config
-      generator's service resolves, as Jenkinsfile.architecture (AaC/Dnsmasq)
-      validates them.
+      validated in one call, each on its own, as Jenkinsfile.architecture
+      (AaC/Dnsmasq) validates them.
     test: cexec aac-tools arch-validate --quiet *.yaml
