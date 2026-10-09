@@ -71,9 +71,12 @@ def test_image_passes_the_charts_dhcp_readiness_probe(
     )
 
 
-def test_lease_change_script_posts_to_the_renewal_endpoint(chain_stack: Stack) -> None:
+def test_lease_change_script_posts_to_the_renewal_endpoint(
+    chain_stack: Stack, cluster: Cluster
+) -> None:
     """dnsmasq runs its lease-change script for the seeded lease at startup, and
-    the script POSTs an empty form to DHCP_RENEWAL_ENDPOINT."""
+    the script POSTs an empty form to DHCP_RENEWAL_ENDPOINT. dnsmasq logs each
+    run that exits non-zero, as curl does when its POST is refused."""
     changes = wait_for(
         lambda: chain_stack.control.lease_changes() or None,
         30.0,
@@ -83,3 +86,4 @@ def test_lease_change_script_posts_to_the_renewal_endpoint(chain_stack: Stack) -
         "content_type": "application/x-www-form-urlencoded",
         "body": "",
     }
+    assert "script process exited" not in cluster.log(chain_stack.pod, "dhcp-dnsmasq")

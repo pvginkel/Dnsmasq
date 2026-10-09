@@ -4,9 +4,11 @@ The containers are the chart's (`DnsmasqDeploy/chart/templates/`): a DNS or DHCP
 replica is the config generator's `generate` as an init container, dnsmasq, and
 `serve` beside it in one process namespace. Everything a stack needs at start
 arrives through the Job spec: a `stage` init container writes the files a
-ConfigMap supplies in production. A `control` container (`tier.agent`) serves
-what the suite does inside the stack, mounting every volume at
-`/stack/<volume>`.
+ConfigMap supplies in production. A `control` native sidecar (`tier.agent`)
+serves what the suite does inside the stack, mounting every volume at
+`/stack/<volume>`. Its startup probe holds back the stack's other containers,
+so what they send it at startup, such as dnsmasq's lease-change script run,
+reaches it.
 """
 
 import json
@@ -147,6 +149,12 @@ class _Pod:
             self.images.config_generator,
             command=["python", "-c", Path(agent.__file__).read_text()],
             args=[str(CONTROL_PORT)],
+            restartPolicy="Always",
+            startupProbe={
+                "httpGet": {"path": "/healthz", "port": CONTROL_PORT},
+                "periodSeconds": 1,
+                "failureThreshold": 60,
+            },
             volumeMounts=every_volume,
         )
         return {
@@ -155,8 +163,8 @@ class _Pod:
             "automountServiceAccountToken": False,
             "enableServiceLinks": False,
             "terminationGracePeriodSeconds": 1,
-            "initContainers": [stage, *self.init],
-            "containers": [*self.containers, control],
+            "initContainers": [stage, control, *self.init],
+            "containers": self.containers,
             "volumes": [{"name": v, "emptyDir": {}} for v in self.volumes],
         }
 
@@ -385,6 +393,8 @@ def _reader(images: Images) -> dict[str, Any]:
             _mount(generated, "/mnt/target"),
         ],
     )
+    # DHCPApp's own container, which that startup probe holds back.
+    pod.container("app", images.config_generator, command=["sleep", "infinity"])
     return pod.spec()
 
 
