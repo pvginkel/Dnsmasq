@@ -56,11 +56,17 @@ class Cluster:
     def delete_job(self, job: str) -> None:
         """Deletes the Job and, with it, its pod.
 
-        A Job deleted without a propagation policy orphans its pod.
+        A Job deleted without a propagation policy orphans its pod. A Job that
+        is already gone — a failed one the TTL controller removed — counts as
+        deleted.
         """
-        self._batch.delete_namespaced_job(
-            job, self.namespace, propagation_policy="Foreground"
-        )
+        try:
+            self._batch.delete_namespaced_job(
+                job, self.namespace, propagation_policy="Foreground"
+            )
+        except kubernetes.client.ApiException as e:
+            if e.status != 404:
+                raise
 
     def wait_deleted(self, job: str) -> None:
         """Until the Job is gone: under foreground deletion, after its pod."""
